@@ -6,6 +6,7 @@ contract SoftKoin{
     string private  constant name = "SoftKoin";
     string private constant symbol = "SFK";
     mapping(address=>uint) private tokenHolderBalances;
+    mapping(address=>mapping(address=>uint)) private tokenHolderApprovals;
     uint private totalSupply;
 
     function name() public constant returns (string){
@@ -50,6 +51,29 @@ contract SoftKoin{
             tokenHolderBalances[msg.sender] = tokenHolderBalances[msg.sender] - tokens;
             tokenHolderBalances[to] = tokenHolderBalances[to] + tokens;
             return true;
+        } else {
+            return false;
+        }
+    }
+
+    function approve(address spender, uint tokens) public returns (bool success){
+        if(tokenHolderBalances[msg.sender]>tokens){
+            tokenHolderApprovals[msg.sender][spender] = tokens;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function allowance(address tokenOwner, address spender) public constant returns (uint remaining){
+        return tokenHolderApprovals[tokenOwner][spender];
+    }
+
+    function transferFrom(address from, address to, uint tokens) public returns (bool success){
+        if(msg.sender==to && tokenHolderApprovals[from][to] >0 && tokenHolderApprovals[from]>0){
+            tokenHolderBalances[from] = tokenHolderBalances[from]  - tokens;
+            tokenHolderBalances[to] = tokenHolderBalances[to]  + tokens;
+            tokenHolderApprovals[from][to] = tokenHolderApprovals[from][to] - tokens;
         } else {
             return false;
         }
