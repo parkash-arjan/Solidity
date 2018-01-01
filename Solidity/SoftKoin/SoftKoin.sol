@@ -2,7 +2,20 @@ pragma solidity ^0.4.18;
 
 
 contract SoftKoin{
-    address owner;
+    address private owner;
+    string private  constant name = "SoftKoin";
+    string private constant symbol = "SFK";
+    mapping(address=>uint) private tokenHolderBalances;
+    uint private totalSupply;
+
+    function name() public constant returns (string){
+        return name;
+    }
+
+    function symbol() public constant returns (string){
+        return symbol;
+    }
+
     mapping(address=>uint) coinHolders;
 
     function SoftKoin() public{
@@ -10,7 +23,7 @@ contract SoftKoin{
     }
 
     function giveCoins(uint numCoins  , address receiver) public{
-        //owner can never run out of coins , so he can send as many coins as he wants.
+        // owner can never run out of coins , so he can send as many coins as he wants.
         if(msg.sender ==owner && numCoins>0){
             coinHolders[receiver] = coinHolders[receiver] + numCoins;
         } else {
@@ -21,6 +34,25 @@ contract SoftKoin{
     function viewBalance()public view returns (uint){
         // return the balance of caller
         return coinHolders[msg.sender];
+    }
+
+    // ERC20
+    function totalSupply() public constant returns (uint){
+        return totalSupply;
+    }
+
+    function balanceOf(address tokenOwner) public constant returns (uint balance){
+        return tokenHolderBalances[tokenOwner];
+    }
+
+    function transfer(address to, uint tokens) public returns (bool success){
+        if(tokenHolderBalances[msg.sender]>tokens && tokens>0){
+            tokenHolderBalances[msg.sender] = tokenHolderBalances[msg.sender] - tokens;
+            tokenHolderBalances[to] = tokenHolderBalances[to] + tokens;
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
